@@ -1,0 +1,38 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold mb-1">My Skills</h4>
+    <span class="text-muted small">Complete courses to earn experience in each skill</span>
+  </div>
+</div>
+
+<div class="row g-3">
+  <% @skills.each do |skill| %>
+    <% us = @exp_by_skill[skill.id] %>
+    <% exp = us&.exp || 0 %>
+    <% level = Skill.level_for(exp) %>
+    <% next_threshold = Skill.next_threshold(exp) %>
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-soft h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fw-semibold"><%= skill.name %></span>
+            <span class="chip badge-ok">Level <%= level %></span>
+          </div>
+          <div class="small text-muted mb-2"><%= exp %> exp</div>
+          <% if next_threshold %>
+            <% prev = level.zero? ? 0 : Skill::LEVELS[level - 1] %>
+            <% pct = ((exp - prev).to_f / (next_threshold - prev) * 100).round %>
+            <div class="progress" style="height:8px"><div class="progress-bar" style="width:<%= pct %>%"></div></div>
+            <div class="small text-muted mt-2"><%= exp %> / <%= next_threshold %> to reach Level <%= level + 1 %></div>
+          <% else %>
+            <div class="small text-muted">Max level reached</div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<% if @skills.empty? %>
+  <p class="text-muted">No skills yet. An admin can add them.</p>
+<% end %>

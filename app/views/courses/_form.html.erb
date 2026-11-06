@@ -18,5 +18,25 @@
     <%= f.label :state, class: "form-label" %>
     <%= f.select :state, Course.states.keys.map { |s| [s.humanize, s] }, {}, class: "form-select" %>
   </div>
+
+  <div class="mb-3">
+    <label class="form-label">Skills awarded on completion</label>
+    <% selected = @course.course_skills.index_by(&:skill_id) %>
+    <% Skill.order(:name).each do |skill| %>
+      <div class="d-flex align-items-center gap-3 border rounded-3 p-2 mb-2" style="border-color:var(--border)!important">
+        <div class="form-check mb-0">
+          <%= check_box_tag "skill_ids[]", skill.id, selected.key?(skill.id), class: "form-check-input" %>
+          <label class="form-check-label"><%= skill.name %></label>
+        </div>
+        <div class="ms-auto" style="min-width:100px">
+          <%= select_tag "skill_exp[#{skill.id}]", options_for_select(Course::EXP_REWARDS, selected[skill.id]&.exp || 1), class: "form-select form-select-sm" %>
+        </div>
+      </div>
+    <% end %>
+    <% unless Skill.exists? %>
+      <p class="text-muted small">No skills yet. An admin can add skills.</p>
+    <% end %>
+  </div>
+
   <%= f.submit class: "btn btn-primary" %>
 <% end %>

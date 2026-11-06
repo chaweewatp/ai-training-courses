@@ -49,6 +49,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_07_185100) do
     t.index ["course_id"], name: "index_chapters_on_course_id"
   end
 
+  create_table "course_skills", force: :cascade do |t|
+    t.bigint "course_id", null: false
+    t.bigint "skill_id", null: false
+    t.integer "exp", default: 1, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["course_id", "skill_id"], name: "index_course_skills_on_course_id_and_skill_id", unique: true
+    t.index ["course_id"], name: "index_course_skills_on_course_id"
+    t.index ["skill_id"], name: "index_course_skills_on_skill_id"
+  end
+
   create_table "courses", force: :cascade do |t|
     t.bigint "instructor_id", null: false
     t.string "title", null: false
@@ -77,6 +88,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_07_185100) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["chapter_id"], name: "index_quizzes_on_chapter_id"
+  end
+
+  create_table "skills", force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_skills_on_name", unique: true
   end
 
   create_table "test_attempts", force: :cascade do |t|
@@ -111,6 +129,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_07_185100) do
     t.index ["course_id"], name: "index_test_questions_on_course_id"
   end
 
+  create_table "user_skills", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "skill_id", null: false
+    t.integer "exp", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["skill_id"], name: "index_user_skills_on_skill_id"
+    t.index ["user_id", "skill_id"], name: "index_user_skills_on_user_id_and_skill_id", unique: true
+    t.index ["user_id"], name: "index_user_skills_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -129,6 +158,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_07_185100) do
   add_foreign_key "certificates", "courses"
   add_foreign_key "certificates", "users"
   add_foreign_key "chapters", "courses"
+  add_foreign_key "course_skills", "courses"
+  add_foreign_key "course_skills", "skills"
   add_foreign_key "courses", "users", column: "instructor_id"
   add_foreign_key "enrollments", "courses"
   add_foreign_key "enrollments", "users"
@@ -137,4 +168,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_07_185100) do
   add_foreign_key "test_attempts", "users"
   add_foreign_key "test_options", "test_questions"
   add_foreign_key "test_questions", "courses"
+  add_foreign_key "user_skills", "skills"
+  add_foreign_key "user_skills", "users"
 end

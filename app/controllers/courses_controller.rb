@@ -33,6 +33,7 @@ class CoursesController < ApplicationController
     require_instructor!
     @course = current_user.courses.build(course_params)
     if @course.save
+      sync_course_skills
       redirect_to @course, notice: "Course created."
     else
       render :new, status: :unprocessable_entity
@@ -44,6 +45,7 @@ class CoursesController < ApplicationController
 
   def update
     if @course.update(course_params)
+      sync_course_skills
       redirect_to @course, notice: "Course updated."
     else
       render :edit, status: :unprocessable_entity
@@ -129,6 +131,17 @@ class CoursesController < ApplicationController
 
   def course_params
     params.require(:course).permit(:title, :description, :state, :certificate_threshold)
+  end
+
+  def sync_course_skills
+    selected_ids = params[:skill_ids] || []
+    exp_by_id = params[:skill_exp] || {}
+    @course.course_skills.destroy_all
+    selected_ids.each do |skill_id|
+      exp = exp_by_id[skill_id.to_s].to_i
+      exp = Course::EXP_REWARDS.first unless Course::EXP_REWARDS.include?(exp)
+      @course.course_skills.create!(skill_id: skill_id, exp: exp)
+    end
   end
 
   def set_course

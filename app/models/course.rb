@@ -1,4 +1,6 @@
 class Course < ApplicationRecord
+  EXP_REWARDS = [ 1, 2, 3, 5, 8, 13 ].freeze
+
   enum :state, { draft: 0, published: 1 }, default: :draft
 
   belongs_to :instructor, class_name: "User"
@@ -9,6 +11,8 @@ class Course < ApplicationRecord
   has_many :certificates, dependent: :destroy
   has_many :test_questions, -> { order(:position) }, dependent: :destroy
   has_many :test_attempts, dependent: :destroy
+  has_many :course_skills, dependent: :destroy
+  has_many :skills, through: :course_skills
 
   validates :title, presence: true
   validates :certificate_threshold, numericality: { only_integer: true, in: 0..100 }

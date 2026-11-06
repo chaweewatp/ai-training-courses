@@ -42,7 +42,10 @@ Rails.application.routes.draw do
         post :reset_password
       end
     end
+    resources :skills, except: [ :show ]
   end
+
+  get "my_skills", to: "skills#index", as: :my_skills
 
   get "my_courses", to: "courses#mine", as: :my_courses
 

@@ -1,0 +1,27 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4 class="fw-bold mb-0">Skills</h4>
+  <%= link_to "Add skill", new_admin_skill_path, class: "btn btn-primary btn-sm" %>
+</div>
+
+<div class="card shadow-soft p-4">
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead><tr class="text-muted small text-uppercase"><th>Name</th><th>Courses</th><th></th></tr></thead>
+      <tbody>
+        <% @skills.each do |skill| %>
+          <tr>
+            <td class="fw-semibold"><%= skill.name %></td>
+            <td><%= skill.course_skills.count %></td>
+            <td class="text-end">
+              <%= link_to "Edit", edit_admin_skill_path(skill), class: "btn btn-sm btn-outline-secondary" %>
+              <%= button_to "Delete", admin_skill_path(skill), method: :delete, class: "btn btn-sm btn-outline-danger" %>
+            </td>
+          </tr>
+        <% end %>
+        <% if @skills.empty? %>
+          <tr><td colspan="3" class="text-muted">No skills yet.</td></tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

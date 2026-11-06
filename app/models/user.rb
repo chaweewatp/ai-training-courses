@@ -12,6 +12,8 @@ class User < ApplicationRecord
   has_many :answers, dependent: :destroy
   has_many :certificates, dependent: :destroy
   has_many :test_attempts, dependent: :destroy
+  has_many :user_skills, dependent: :destroy
+  has_many :skills, through: :user_skills
 
   def instructor? = role == "instructor"
   def admin? = role == "admin"

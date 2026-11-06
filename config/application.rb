@@ -38,5 +38,8 @@ module AiTrainingCourses
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+
+    # No image uploads; disable ActiveStorage variant processing.
+    config.active_storage.variant_processor = :disabled
   end
 end

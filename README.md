@@ -1,24 +1,65 @@
-# README
+# LearnDeck — AI Training Courses
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+A Rails app for training courses. Students register and enroll in courses, read
+Markdown chapters, and answer keyword-checked quizzes. Instructors (promoted by
+admin) author courses and grade answers. Certificates auto-issue when a student
+passes the quiz threshold.
 
-Things you may want to cover:
+## Requirements
 
-* Ruby version
+- Ruby 3.3+
+- Rails 8.0+
+- PostgreSQL (or a `DATABASE_URL` to any Postgres)
 
-* System dependencies
+## Setup
 
-* Configuration
+```sh
+bundle install
+```
 
-* Database creation
+Configure the database by creating a `.env` file (gitignored) with a
+`DATABASE_URL`, e.g.:
 
-* Database initialization
+```
+DATABASE_URL=postgresql://user:password@host/dbname
+```
 
-* How to run the test suite
+Without `.env`, the app falls back to local Postgres (`config/database.yml`).
 
-* Services (job queues, cache servers, search engines, etc.)
+Create and migrate the database, then seed default accounts:
 
-* Deployment instructions
+```sh
+bin/rails db:create db:migrate db:seed
+```
 
-* ...
+## Run
+
+```sh
+bin/rails server
+```
+
+Open http://localhost:3000
+
+## Test accounts
+
+| Role       | Email                  | Password       |
+|------------|------------------------|----------------|
+| Admin      | admin@example.com      | password123    |
+| Instructor | instructor@example.com | password123    |
+
+(Change these before production.)
+
+## Deploy
+
+Push to GitHub and connect the repo in [Render](https://render.com) — the
+`render.yaml` Blueprint provisions the web service. Set `DATABASE_URL` to your
+Postgres URL in the Render dashboard.
+
+## Quiz keyword matching
+
+A quiz stores a question and comma-separated keywords. An answer passes if it
+contains any keyword (case-insensitive substring). Self-check:
+
+```sh
+bin/rails runner script/check_keywords.rb
+```

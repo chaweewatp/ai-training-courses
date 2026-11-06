@@ -2,8 +2,16 @@
   <div class="col-lg-3">
     <div class="sidebar p-2 shadow-soft sticky-top" style="top:80px">
       <div class="px-2 pt-2 pb-1 text-muted small fw-bold text-uppercase"><%= @course.title %></div>
-      <% @course.chapters.each do |chapter| %>
-        <%= link_to chapter.title, course_path(@course, chapter: chapter.id), class: (@chapter == chapter ? "active" : "") %>
+      <% @chapters.each do |chapter| %>
+        <%= link_to course_path(@course, chapter: chapter.id), class: (@chapter == chapter ? "active" : "") do %>
+          <%= chapter.title %>
+          <% if @owner && !chapter.published? %>
+            <span class="chip badge-warn ms-1">Draft</span>
+          <% end %>
+        <% end %>
+      <% end %>
+      <% if @chapters.empty? %>
+        <div class="px-2 small text-muted"><%= @owner ? "No chapters yet." : "No published chapters yet." %></div>
       <% end %>
       <hr class="mx-2 my-2">
       <% if @enrolled && @progress %>
@@ -49,7 +57,7 @@
               <% end %>
             </div>
           <% end %>
-        <% elsif @course.instructor == current_user || current_user.admin? %>
+        <% elsif @owner %>
           <% @chapter.quizzes.each do |quiz| %>
             <div class="border rounded-4 p-4 mt-4" style="border-color:var(--border)!important">
               <span class="text-muted small fw-bold text-uppercase">Quiz</span>
@@ -63,13 +71,17 @@
           <% end %>
           <%= link_to "Add quiz", new_chapter_quiz_path(@chapter), class: "btn btn-outline-brand btn-sm mt-3" %>
           <div class="mt-3 d-flex gap-2">
+            <%= button_to(@chapter.published? ? "Unpublish" : "Publish",
+                          toggle_publish_course_chapter_path(@course, @chapter),
+                          method: :patch,
+                          class: "btn btn-sm #{@chapter.published? ? 'btn-outline-secondary' : 'btn-primary'}") %>
             <%= link_to "Edit chapter", edit_course_chapter_path(@course, @chapter), class: "btn btn-outline-secondary btn-sm" %>
             <%= link_to "Add chapter", new_course_chapter_path(@course), class: "btn btn-outline-brand btn-sm" %>
           </div>
         <% end %>
       <% else %>
         <p class="text-muted">No chapters yet.</p>
-        <% if @course.instructor == current_user %>
+        <% if @owner %>
           <%= link_to "Add chapter", new_course_chapter_path(@course), class: "btn btn-primary" %>
         <% end %>
       <% end %>

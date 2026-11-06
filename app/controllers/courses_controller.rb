@@ -18,8 +18,10 @@ class CoursesController < ApplicationController
       return
     end
     @enrolled = current_user.enrolled_courses.exists?(@course.id)
-    @chapter = @course.chapters.find_by(id: params[:chapter]) || @course.chapters.first
-    @progress = student_progress if @chapter
+    @owner = @course.instructor == current_user || current_user.admin?
+    @chapters = @owner ? @course.chapters : @course.chapters.published
+    @chapter = @chapters.find_by(id: params[:chapter]) || @chapters.first
+    @progress = student_progress if @chapter && @enrolled
   end
 
   def new

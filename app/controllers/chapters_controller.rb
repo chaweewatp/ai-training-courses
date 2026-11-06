@@ -35,6 +35,12 @@ class ChaptersController < ApplicationController
     redirect_to @course, notice: "Chapter deleted."
   end
 
+  def toggle_publish
+    @chapter = @course.chapters.find(params[:id])
+    @chapter.update!(published: !@chapter.published?)
+    redirect_to @course, notice: @chapter.published? ? "Chapter published." : "Chapter unpublished."
+  end
+
   private
 
   def set_course

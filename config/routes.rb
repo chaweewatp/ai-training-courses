@@ -10,7 +10,11 @@ Rails.application.routes.draw do
       get :certificate
       get :review_student
     end
-    resources :chapters, except: [ :index, :show ]
+    resources :chapters, except: [ :index, :show ] do
+      member do
+        patch :toggle_publish
+      end
+    end
   end
 
   resources :chapters, only: [] do

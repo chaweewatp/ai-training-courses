@@ -1,0 +1,24 @@
+<%= form_with model: [ @course, @test_question ], local: true do |f| %>
+  <% if @test_question.errors.any? %>
+    <div class="alert alert-danger"><%= @test_question.errors.full_messages.to_sentence %></div>
+  <% end %>
+
+  <div class="mb-3">
+    <%= f.label :text, "Question (Markdown)", class: "form-label" %>
+    <%= f.text_area :text, class: "form-control", rows: 4, style: "font-family:'JetBrains Mono',monospace" %>
+  </div>
+
+  <div class="fw-semibold mb-2">Options — mark exactly one correct</div>
+  <%= f.fields_for :options do |o| %>
+    <div class="border rounded-3 p-3 mb-2" style="border-color:var(--border)!important">
+      <div class="form-check mb-2">
+        <%= o.check_box :correct, class: "form-check-input" %>
+        <%= o.label :correct, "Correct answer", class: "form-check-label small" %>
+      </div>
+      <%= o.text_area :text, class: "form-control", rows: 2, placeholder: "Option (Markdown)", style: "font-family:'JetBrains Mono',monospace" %>
+    </div>
+  <% end %>
+
+  <%= f.submit class: "btn btn-primary" %>
+  <%= link_to "Cancel", course_test_questions_path(@course), class: "btn btn-outline-secondary" %>
+<% end %>

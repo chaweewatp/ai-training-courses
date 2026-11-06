@@ -9,12 +9,16 @@ Rails.application.routes.draw do
       get :manage
       get :certificate
       get :review_student
+      get :pre_test
+      get :post_test
+      post :submit_test
     end
     resources :chapters, except: [ :index, :show ] do
       member do
         patch :toggle_publish
       end
     end
+    resources :test_questions
   end
 
   resources :chapters, only: [] do

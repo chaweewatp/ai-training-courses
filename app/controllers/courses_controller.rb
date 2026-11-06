@@ -1,6 +1,6 @@
 class CoursesController < ApplicationController
   before_action :authenticate_user!, except: [ :index ]
-  before_action :set_course, only: [ :show, :edit, :update, :destroy, :enroll, :manage, :certificate, :review_student ]
+  before_action :set_course, only: [ :show, :edit, :update, :destroy, :enroll, :manage, :certificate, :review_student, :pre_test, :post_test, :submit_test ]
   before_action :require_owner!, only: [ :edit, :update, :destroy, :manage, :review_student ]
 
   def index
@@ -86,7 +86,46 @@ class CoursesController < ApplicationController
     end
   end
 
+  def pre_test
+    render_test(:pre)
+  end
+
+  def post_test
+    render_test(:post)
+  end
+
+  def submit_test
+    test_type = params[:test_type]
+    unless [ "pre", "post" ].include?(test_type)
+      redirect_to @course, alert: "Invalid test."
+      return
+    end
+    redirect_to @course, alert: "Enroll to take the test." unless current_user.enrolled_courses.exists?(@course.id)
+
+    questions = @course.test_questions.includes(:options)
+    answers = params[:answers] || {}
+    score = questions.count do |q|
+      chosen_id = answers[q.id.to_s]
+      chosen_id.present? && q.options.any? { |o| o.id.to_s == chosen_id.to_s && o.correct }
+    end
+    total = questions.count
+    attempt = current_user.test_attempts.find_or_initialize_by(course: @course, test_type: test_type)
+    attempt.update!(score: score, total: total)
+    redirect_to @course, notice: "You scored #{score}/#{total} on the #{test_type}-test."
+  end
+
   private
+
+  def render_test(test_type)
+    unless current_user.enrolled_courses.exists?(@course.id) || @course.instructor == current_user || current_user.admin?
+      redirect_to @course, alert: "Enroll to take the test."
+      return
+    end
+    @test_type = test_type
+    @questions = @course.test_questions.includes(:options)
+    @attempt = current_user.test_attempts.find_by(course: @course, test_type: test_type)
+    render :test
+  end
 
   def course_params
     params.require(:course).permit(:title, :description, :state, :certificate_threshold)
@@ -101,10 +140,7 @@ class CoursesController < ApplicationController
   end
 
   def eligible?
-    return false unless @course.total_quizzes.positive?
-    passed = @course.quizzes.joins(:answers)
-      .where(answers: { user_id: current_user.id, correct: true }).count
-    passed.to_f / @course.total_quizzes * 100 >= @course.certificate_threshold
+    @course.eligible?(current_user)
   end
 
   def student_progress

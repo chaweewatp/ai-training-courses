@@ -1,0 +1,30 @@
+<div class="card shadow-soft p-4 p-lg-5">
+  <h4 class="fw-bold mb-1"><%= @test_type.to_s.titleize %>-Test</h4>
+  <% if @attempt %>
+    <p class="text-muted mb-0">Previous score: <%= @attempt.score %>/<%= @attempt.total %> (<%= @attempt.percent %>%)</p>
+  <% end %>
+
+  <% if @questions.empty? %>
+    <p class="text-muted mt-4">No questions yet.</p>
+  <% else %>
+    <%= form_with url: submit_test_course_path(@course), method: :post, local: true do |f| %>
+      <%= hidden_field_tag :test_type, @test_type %>
+      <% @questions.each_with_index do |q, i| %>
+        <div class="border rounded-4 p-4 mt-4" style="border-color:var(--border)!important">
+          <div class="fw-semibold mb-3"><%= i + 1 %>. <%= markdown(q.text) %></div>
+          <% q.options.each do |opt| %>
+            <div class="form-check mb-1">
+              <%= radio_button_tag "answers[#{q.id}]", opt.id, false, class: "form-check-input", id: "q#{q.id}_o#{opt.id}" %>
+              <label class="form-check-label" for="q<%= q.id %>_o<%= opt.id %>"><%= markdown(opt.text) %></label>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+      <%= f.submit "Submit", class: "btn btn-primary mt-4" %>
+    <% end %>
+  <% end %>
+</div>
+
+<div class="mt-3">
+  <%= link_to "Back to course", @course, class: "btn btn-outline-secondary btn-sm" %>
+</div>

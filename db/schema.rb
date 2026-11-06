@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_07_180000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_07_185100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -79,6 +79,38 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_07_180000) do
     t.index ["chapter_id"], name: "index_quizzes_on_chapter_id"
   end
 
+  create_table "test_attempts", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "course_id", null: false
+    t.integer "test_type", default: 0, null: false
+    t.integer "score", default: 0, null: false
+    t.integer "total", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["course_id"], name: "index_test_attempts_on_course_id"
+    t.index ["user_id", "course_id", "test_type"], name: "index_test_attempts_on_user_id_and_course_id_and_test_type", unique: true
+    t.index ["user_id"], name: "index_test_attempts_on_user_id"
+  end
+
+  create_table "test_options", force: :cascade do |t|
+    t.bigint "test_question_id", null: false
+    t.text "text", null: false
+    t.boolean "correct", default: false, null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["test_question_id"], name: "index_test_options_on_test_question_id"
+  end
+
+  create_table "test_questions", force: :cascade do |t|
+    t.bigint "course_id", null: false
+    t.text "text", null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["course_id"], name: "index_test_questions_on_course_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -101,4 +133,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_07_180000) do
   add_foreign_key "enrollments", "courses"
   add_foreign_key "enrollments", "users"
   add_foreign_key "quizzes", "chapters"
+  add_foreign_key "test_attempts", "courses"
+  add_foreign_key "test_attempts", "users"
+  add_foreign_key "test_options", "test_questions"
+  add_foreign_key "test_questions", "courses"
 end

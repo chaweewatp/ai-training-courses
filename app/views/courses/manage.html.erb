@@ -27,7 +27,7 @@
             <td>
               <% if student.certificates.exists?(course: @course) %>
                 <span class="chip badge-ok">Earned</span>
-              <% elsif pct >= @course.certificate_threshold && total.positive? %>
+              <% elsif @course.eligible?(student) %>
                 <span class="chip badge-warn">Eligible</span>
               <% else %>
                 <span class="chip badge-err">In progress</span>

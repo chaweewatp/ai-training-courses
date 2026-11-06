@@ -14,8 +14,18 @@
         <div class="px-2 small text-muted"><%= @owner ? "No chapters yet." : "No published chapters yet." %></div>
       <% end %>
       <hr class="mx-2 my-2">
-      <% if @enrolled && @progress %>
-        <div class="px-2 pb-2 small text-muted">Chapter progress: <%= @progress[:passed] %>/<%= @progress[:total] %> passed</div>
+      <% if @enrolled %>
+        <% pre = current_user.test_attempts.find_by(course: @course, test_type: :pre) %>
+        <% post = current_user.test_attempts.find_by(course: @course, test_type: :post) %>
+        <%= link_to pre_test_course_path(@course) do %>
+          Pre-test<% if pre %> <span class="small text-muted">(<%= pre.percent %>%)</span><% end %>
+        <% end %>
+        <%= link_to post_test_course_path(@course) do %>
+          Post-test<% if post %> <span class="small text-muted">(<%= post.percent %>%)</span><% end %>
+        <% end %>
+        <% if @progress %>
+          <div class="px-2 small text-muted">Chapter progress: <%= @progress[:passed] %>/<%= @progress[:total] %> passed</div>
+        <% end %>
       <% end %>
       <% unless @enrolled %>
         <div class="px-2 pb-2">
@@ -77,6 +87,7 @@
                           class: "btn btn-sm #{@chapter.published? ? 'btn-outline-secondary' : 'btn-primary'}") %>
             <%= link_to "Edit chapter", edit_course_chapter_path(@course, @chapter), class: "btn btn-outline-secondary btn-sm" %>
             <%= link_to "Add chapter", new_course_chapter_path(@course), class: "btn btn-outline-brand btn-sm" %>
+            <%= link_to "Manage tests", course_test_questions_path(@course), class: "btn btn-outline-brand btn-sm" %>
           </div>
         <% end %>
       <% else %>

@@ -1,0 +1,27 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5 class="fw-bold mb-0">Review — <%= @student.email %></h5>
+  <%= link_to "Back", manage_course_path(@course), class: "btn btn-sm btn-outline-secondary" %>
+</div>
+<p class="text-muted small"><%= @passed %> / <%= @course.total_quizzes %> passed</p>
+
+<% @answers.each do |answer| %>
+  <div class="card shadow-soft p-4 mb-3">
+    <div class="d-flex justify-content-between">
+      <span class="fw-semibold"><%= answer.quiz.text %></span>
+      <span class="chip <%= answer.correct ? 'badge-ok' : 'badge-err' %>"><%= answer.correct ? "Correct" : "Incorrect" %></span>
+    </div>
+    <div class="text-muted small mt-1">Answer: “<%= answer.text %>”</div>
+    <div class="text-muted small">Keywords: <%= answer.quiz.keywords %></div>
+    <%= form_with url: review_answer_path(answer), method: :patch, local: true do |f| %>
+      <div class="d-flex gap-2 mt-3">
+        <%= hidden_field_tag "answer[correct]", !answer.correct %>
+        <%= text_field_tag "answer[instructor_comment]", answer.instructor_comment, class: "form-control form-control-sm", placeholder: "Instructor comment…" %>
+        <%= f.submit answer.correct ? "Mark incorrect" : "Mark correct", class: "btn btn-sm btn-outline-brand" %>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+<% if @answers.empty? %>
+  <p class="text-muted">This student hasn't answered any quizzes yet.</p>
+<% end %>

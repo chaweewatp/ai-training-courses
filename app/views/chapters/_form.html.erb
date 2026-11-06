@@ -1,0 +1,16 @@
+<div class="card shadow-soft p-4" style="max-width:760px">
+  <h4 class="fw-bold mb-3"><%= @chapter.new_record? ? "New Chapter" : "Edit Chapter" %></h4>
+  <%= form_with model: [@course, @chapter], local: true do |f| %>
+    <% if @chapter.errors.any? %><div class="alert alert-danger"><%= @chapter.errors.full_messages.to_sentence %></div><% end %>
+    <div class="mb-3">
+      <%= f.label :title, class: "form-label" %>
+      <%= f.text_field :title, class: "form-control" %>
+    </div>
+    <div class="mb-3">
+      <%= f.label :body, "Content (Markdown)", class: "form-label" %>
+      <%= f.text_area :body, class: "form-control", rows: 14, style: "font-family:'JetBrains Mono',monospace" %>
+    </div>
+    <%= f.submit class: "btn btn-primary" %>
+    <%= link_to "Cancel", @course, class: "btn btn-outline-secondary" %>
+  <% end %>
+</div>

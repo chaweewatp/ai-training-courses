@@ -1,0 +1,25 @@
+<div class="card shadow-soft p-4">
+  <h6 class="fw-bold mb-3">Users</h6>
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead><tr class="text-muted small text-uppercase"><th>User</th><th>Email</th><th>Role</th><th>Actions</th></tr></thead>
+      <tbody>
+        <% @users.each do |user| %>
+          <tr>
+            <td><span class="avatar me-2"><%= user.email.first(2).upcase %></span> <%= user.email %></td>
+            <td><%= user.email %></td>
+            <td><span class="chip <%= user.admin? ? 'badge-err' : (user.instructor? ? 'badge-ok' : 'badge-warn') %>"><%= user.role %></span></td>
+            <td>
+              <% if user.student? %>
+                <%= button_to "Promote", update_role_admin_user_path(user, role: "instructor"), method: :patch, class: "btn btn-sm btn-primary" %>
+              <% elsif user.instructor? %>
+                <%= button_to "Demote", update_role_admin_user_path(user, role: "student"), method: :patch, class: "btn btn-sm btn-outline-secondary" %>
+              <% end %>
+              <%= button_to "Reset pw", reset_password_admin_user_path(user), method: :post, class: "btn btn-sm btn-outline-brand" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div>

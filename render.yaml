@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: ai-training-courses
+    runtime: ruby
+    plan: free
+    buildCommand: ./bin/bundle install && ./bin/rails assets:precompile
+    preDeployCommand: ./bin/rails db:migrate
+    startCommand: ./bin/rails server
+    envVars:
+      - key: SECRET_KEY_BASE
+        generateValue: true
+      - key: DATABASE_URL
+        sync: false
+      - key: WEB_CONCURRENCY
+        value: "2"
+      - key: RAILS_LOG_TO_STDOUT
+        value: "true"

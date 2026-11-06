@@ -1,133 +1,88 @@
-# Implementation Plan — AI Training Courses
+# SkillUp — Implementation
 
-Ruby on Rails web app for training courses. Students register, enroll in courses, and
-answer quiz questions. Instructors (promoted by admin) author courses and grade answers.
-Certificates are auto-issued when a student passes the quiz threshold.
+Rails app for training courses. Students register, enroll, study Markdown
+chapters, and answer keyword-checked quizzes. Instructors (promoted by admin)
+author courses and grade answers. Pre/post multiple-choice tests measure
+learning. Certificates auto-issue and award skill experience.
 
 ## Stack
 
-- Rails 8.0.x, Ruby 3.3.x, PostgreSQL
-- Devise (email login, no confirmable/recoverable)
+- Rails 8.1.x, Ruby 3.3.x, PostgreSQL
+- Devise (email login; no `:confirmable`; `:recoverable` used only for the admin
+  password-reset token, no email sending)
 - `redcarpet` + `rouge` for Markdown rendering + syntax highlighting
-- Deploy: GitHub (public) → Render Blueprint (`render.yaml`)
+- Bootstrap 5.3 (CDN) with native light/dark via `data-bs-theme`, teal/emerald accent
+- Deploy: GitHub → Render (web service + `DATABASE_URL`/`SECRET_KEY_BASE` env vars)
 
-## UI / design
+## Roles & auth
 
-- Server-rendered ERB + Hotwire/Turbo (no SPA).
-- Bootstrap 5.3+ (CDN or `importmap`) with native light/dark via `data-bs-theme`.
-- Accent theme: teal/emerald, layered via CSS variables overriding `--bs-primary`.
-- Theme toggle button → `localStorage` + `prefers-color-scheme` default.
-- Code blocks: `rouge` highlight + copy-to-clipboard button (vanilla JS).
-- Reference mockup: `prototype/index.html` (catalog, player, manage, certificate, admin).
+- `User` with `role` enum: `student` (default) / `instructor` / `admin`.
+- Admin promotes/demotes via `Admin::UsersController#index`; `admin` set by seed.
+- Password reset: admin generates a one-time token + URL (no email).
 
----
+## Data model
 
-## 1. Roles & auth
+- `Course` — `instructor`, `state` (draft/published), `certificate_threshold` (%).
+- `Chapter` — `course`, `title`, `body` (Markdown), `position`, `published`.
+- `Quiz` — `chapter`, `text`, `keywords` (comma-separated). One quiz = one question.
+- `Answer` — one per (quiz, student), overwritten on retry; `correct`,
+  `instructor_comment`.
+- `Enrollment` — join user↔course.
+- `Certificate` — user↔course, `earned_at`; `after_create` awards skill exp.
+- `TestQuestion` / `TestOption` — multiple-choice (Markdown, exactly-one-correct),
+  shared by pre- and post-test.
+- `TestAttempt` — user↔course, `test_type` (pre/post), `score`, `total`.
+- `Skill` — global list (admin CRUD). Levels mocked to 10 (`N * 5` cumulative exp).
+- `UserSkill` — user's exp per skill.
+- `CourseSkill` — course rewards a skill with `exp` ∈ {1,2,3,5,8,13}.
 
-- One `users` table, `role` enum: `student` (default) / `instructor` / `admin`.
-- Devise auth, login key = email. **No** `:confirmable`, **no** `:recoverable`.
-- Admin promotes/demotes via `User#index` (`student ↔ instructor`). `admin` set by seed only.
-- Password reset (no email): admin generates a one-time token + URL, hands it to the user,
-  user opens it and sets a new password.
+## Quiz logic
 
-Models:
+Substring, case-insensitive, OR over keywords (`answer.downcase.include?(kw)`).
+Keyword match sets `correct = true`; instructor can override to incorrect + comment;
+student re-answers by overwriting.
 
-```
-User
-  role            enum(student/instructor/admin, default: student)
-  reset_token     string, nullable   # admin-generated password reset
-  reset_token_at  datetime, nullable
-  has_many :courses (as instructor)
-  has_many :enrollments
-  has_many :answers
-  has_many :certificates
-```
+## Chapter publish
 
-## 2. Data model
+`Chapter.published` (default false). Instructor publishes one chapter at a time;
+students see/access only published chapters (no auto-unlock).
 
-```
-Course
-  instructor_id     FK users
-  state             enum(draft/published, default: draft)
-  certificate_threshold  integer (percent, e.g. 80)
-  has_many :chapters
-  has_many :enrollments
-  has_many :certificates
+## Pre/post tests
 
-Chapter
-  course_id
-  body              text (Markdown)
-  position          integer
-  has_many :quizzes
+One question bank per course used for both pre-test and post-test. MCQs rendered
+as radio buttons; submission scores and stores a `TestAttempt` (retake overwrites).
+Result shows score only (correct answers not revealed).
 
-Quiz                    # one quiz = one question
-  chapter_id
-  text              string (question)
-  keywords          string (comma-separated, e.g. "60, sixty")
-  has_many :answers
+## Certificate
 
-Answer                  # one per (quiz, student), overwritten on retry
-  quiz_id
-  user_id
-  text              string
-  correct           boolean
-  instructor_comment text, nullable
-  # unique index on [quiz_id, user_id]
+Eligibility = **quiz pass % ≥ threshold AND post-test % ≥ threshold**
+(whichever exists; a course with only one still works). Auto-issued on the
+certificate page; rendered as printable HTML. Issuing a certificate adds each
+`CourseSkill` exp to the student's `UserSkill`.
 
-Enrollment              # instant, tracks progress
-  user_id
-  course_id
-  # unique index on [user_id, course_id]
+## Skills & leveling
 
-Certificate             # auto-issued
-  user_id
-  course_id
-  earned_at          datetime
-  # unique index on [user_id, course_id]
-```
+- Admin manages the global skill list (`Admin::SkillsController`).
+- Instructor selects skills + exp reward per course in the course form.
+- Student "My Skills" page shows exp, level, and progress to the next level.
+- Level `N` = `N * 5` cumulative exp (mock to level 10): L1=5, L2=10, … L10=50.
 
-## 3. Quiz logic
+## Screens / routes
 
-- Substring, case-insensitive: split `keywords` on comma, trim, downcase both sides,
-  `answer.downcase.include?(kw)` — OR over keywords.
-- Flow 3: keyword match sets `correct = true` automatically; instructor can override to
-  `incorrect` + comment; student re-answers by overwriting their `Answer`.
-- Progress: `passed = course.quizzes.where(answers: { correct: true })` effectively
-  `Answer.where(correct: true)` for that student. Percent = `passed / total_quizzes_in_course`.
+- Public: catalog (published courses) + enroll.
+- Student: course player (chapters + code copy + quizzes), pre/post tests,
+  certificate, "My Skills".
+- Instructor: course/chapter/quiz/test-question authoring, course management
+  (progress summary → per-student review), publish toggles.
+- Admin: user list (promote/demote, reset password), skill list.
 
-## 4. Certificate
+## Deploy
 
-- Auto-issued when `passed / total >= certificate_threshold`.
-- Rendered as printable HTML page (browser "Print → Save as PDF"). No server-side PDF.
+`render.yaml` declares the web service. No `config/credentials.yml.enc` — secrets
+come from env vars: `DATABASE_URL` (Postgres) and `SECRET_KEY_BASE`. Build:
+`bundle install && bin/rails assets:precompile`, predeploy `db:migrate`.
 
-## 5. Screens / routes
+## Checks
 
-- Public: course catalog (`Course#index`, `published` only) + `Enroll` button.
-- Student: course view → chapters (Markdown with copy-to-clipboard code blocks) → quizzes.
-- Instructor: `Course` CRUD (draft→publish), `Chapter` CRUD, `Quiz` CRUD.
-- Course management: summary table (student, `passed/total → %`, cert status) → drill-down
-  into a student's per-quiz answers for override + comments.
-- Admin: `User#index` promote/demote + "reset password" token.
-
-## 6. Deploy (Render Blueprint)
-
-`render.yaml`:
-
-- `web` service: build `bundle install && ./bin/rails assets:precompile`,
-  predeploy `./bin/rails db:migrate`, start `./bin/rails server`.
-- `postgresql` database → injects `DATABASE_URL`.
-
-Push to GitHub, connect repo in Render, Blueprint provisions both services.
-
----
-
-## Build order
-
-1. `rails new` (Postgres) → Devise → `User` + role enum.
-2. Models + migrations: `Course`, `Chapter`, `Quiz`, `Answer`, `Enrollment`, `Certificate`.
-3. Keyword matching + quiz submit/retry flow.
-4. Enrollment + progress + certificate auto-issue.
-5. Instructor course/chapter/quiz authoring (Markdown + highlight + copy button).
-6. Course management summary + drill-down review screen.
-7. Admin user index + password-reset token.
-8. `render.yaml` + deploy.
+- `bin/rails runner script/check_keywords.rb` — keyword matching self-check.
+- `bin/brakeman`, `bin/rubocop`, `bin/importmap audit` run in CI.

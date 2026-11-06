@@ -1,3 +1,14 @@
+<% if @owner %>
+  <div class="d-flex align-items-center gap-2 mb-4">
+    <span class="chip <%= @course.published? ? 'badge-ok' : 'badge-warn' %>"><%= @course.state %></span>
+    <%= button_to(@course.published? ? "Unpublish" : "Publish",
+                  toggle_publish_course_path(@course),
+                  method: :patch,
+                  class: "btn btn-sm #{@course.published? ? 'btn-outline-secondary' : 'btn-primary'}") %>
+    <%= link_to "Edit course", edit_course_path(@course), class: "btn btn-sm btn-outline-secondary" %>
+  </div>
+<% end %>
+
 <div class="row g-4">
   <div class="col-lg-3">
     <div class="sidebar p-2 shadow-soft sticky-top" style="top:80px">

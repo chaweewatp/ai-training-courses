@@ -14,7 +14,7 @@ module ApplicationHelper
   private
 
   def highlight_code_blocks(html)
-    html.gsub(%r{<pre><code(?: class="language-(\w+)")?>(.*?)</code></pre>}m) do
+    html.gsub(%r{<pre><code(?: class="(?:language-)?([\w+-]+)")?>(.*?)</code></pre>}m) do
       lang = Regexp.last_match(1) || "text"
       code = CGI.unescapeHTML(Regexp.last_match(2))
       lexer = Rouge::Lexer.find_fancy(lang, code) || Rouge::Lexers::PlainText

@@ -21,7 +21,7 @@ class User < ApplicationRecord
   def display_name = full_name.presence || email
 
   def generate_reset_link!
-    token = set_reset_password_token!
+    token = set_reset_password_token
     "/users/password/edit?reset_password_token=#{token}"
   end
 end

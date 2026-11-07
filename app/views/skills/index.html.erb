@@ -5,6 +5,17 @@
   </div>
 </div>
 
+<div class="card shadow-soft p-4 mb-4">
+  <%= form_with url: my_name_path, method: :patch, local: true do |f| %>
+    <label class="form-label fw-semibold">Full name</label>
+    <div class="input-group">
+      <%= text_field_tag :full_name, current_user.full_name, class: "form-control", placeholder: "Your full name" %>
+      <%= f.submit "Save", class: "btn btn-primary" %>
+    </div>
+    <div class="form-text">Shown on your certificates.</div>
+  <% end %>
+</div>
+
 <div class="row g-3">
   <% @skills.each do |skill| %>
     <% us = @exp_by_skill[skill.id] %>

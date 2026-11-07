@@ -31,6 +31,7 @@
             <% if user_signed_in? %>
               <li class="nav-item"><%= link_to "My Courses", my_courses_path, class: "nav-link" %></li>
               <li class="nav-item"><%= link_to "My Skills", my_skills_path, class: "nav-link" %></li>
+              <li class="nav-item"><%= link_to "My Certificates", my_certificates_path, class: "nav-link" %></li>
               <% if current_user.instructor? %>
                 <li class="nav-item"><%= link_to "New Course", new_course_path, class: "nav-link" %></li>
               <% end %>

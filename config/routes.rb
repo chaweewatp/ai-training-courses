@@ -48,7 +48,11 @@ Rails.application.routes.draw do
 
   get "my_skills", to: "skills#index", as: :my_skills
 
+  patch "my_name", to: "skills#update_name", as: :my_name
+
   get "my_courses", to: "courses#mine", as: :my_courses
+
+  get "my_certificates", to: "certificates#index", as: :my_certificates
 
   root "courses#index"
 end

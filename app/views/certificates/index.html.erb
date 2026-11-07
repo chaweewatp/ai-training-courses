@@ -1,0 +1,18 @@
+<h4 class="fw-bold mb-4">My Certificates</h4>
+
+<div class="row g-3">
+  <% @certificates.each do |certificate| %>
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow-soft h-100">
+        <div class="card-body">
+          <h6 class="fw-bold"><%= certificate.course.title %></h6>
+          <p class="text-muted small mb-3">Earned <%= certificate.earned_at.to_date %></p>
+          <%= link_to "View certificate", certificate_course_path(certificate.course), class: "btn btn-sm btn-primary" %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+  <% if @certificates.empty? %>
+    <p class="text-muted">No certificates yet.</p>
+  <% end %>
+</div>

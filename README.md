@@ -14,8 +14,9 @@ answers. Certificates auto-issue and award skill experience points.
   (case-insensitive substring, OR).
 - **Pre/post tests**: shared multiple-choice question bank, questions/options in
   Markdown.
-- **Certificates**: auto-issued when quiz pass % **and** post-test % reach the
-  threshold; printable HTML.
+- **Certificates**: instructor issues them from the course manage page when a
+  student's quiz pass % **and** post-test % reach the threshold; they appear in
+  the student's certificate menu; printable HTML.
 - **Skills**: admin-managed skill list; courses reward skill exp (1/2/3/5/8/13);
   students level up per skill (level N = N×5 exp, up to level 10).
 

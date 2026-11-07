@@ -1,7 +1,7 @@
 class CoursesController < ApplicationController
   before_action :authenticate_user!, except: [ :index ]
-  before_action :set_course, only: [ :show, :edit, :update, :destroy, :enroll, :manage, :certificate, :review_student, :pre_test, :post_test, :submit_test, :toggle_publish ]
-  before_action :require_owner!, only: [ :edit, :update, :destroy, :manage, :review_student, :toggle_publish ]
+  before_action :set_course, only: [ :show, :edit, :update, :destroy, :enroll, :manage, :certificate, :review_student, :pre_test, :post_test, :submit_test, :issue_certificate, :toggle_publish ]
+  before_action :require_owner!, only: [ :edit, :update, :destroy, :manage, :review_student, :issue_certificate, :toggle_publish ]
 
   def index
     @courses = Course.published.includes(:instructor).order(:created_at)
@@ -80,6 +80,16 @@ class CoursesController < ApplicationController
     @answers = @student.answers.joins(quiz: :chapter).where(chapters: { course_id: @course.id })
       .includes(quiz: :chapter).order("chapters.position", "quizzes.id")
     @passed = @answers.where(correct: true).count
+  end
+
+  def issue_certificate
+    student = User.find(params[:user_id])
+    unless @course.eligible?(student)
+      redirect_to manage_course_path(@course), alert: "#{student.display_name} is not eligible yet."
+      return
+    end
+    student.certificates.find_or_create_by!(course: @course) { |c| c.earned_at = Time.current }
+    redirect_to manage_course_path(@course), notice: "Certificate issued to #{student.display_name}."
   end
 
   def certificate

@@ -12,6 +12,7 @@ Rails.application.routes.draw do
       get :pre_test
       get :post_test
       post :submit_test
+      post :issue_certificate
       patch :toggle_publish
     end
     resources :chapters, except: [ :index, :show ] do

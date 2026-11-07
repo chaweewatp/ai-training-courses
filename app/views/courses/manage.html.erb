@@ -10,13 +10,15 @@
   <div class="table-responsive">
     <table class="table align-middle">
       <thead><tr class="text-muted small text-uppercase">
-        <th>Student</th><th>Passed</th><th>Progress</th><th>Certificate</th><th></th>
+        <th>Student</th><th>Passed</th><th>Progress</th><th>Pre-test</th><th>Post-test</th><th>Certificate</th><th></th>
       </tr></thead>
       <tbody>
         <% @students.each do |student| %>
           <% passed = @course.quizzes.joins(:answers).where(answers: { user_id: student.id, correct: true }).count %>
           <% total = @course.total_quizzes %>
           <% pct = total.positive? ? (passed.to_f / total * 100).round : 0 %>
+          <% pre = @course.test_attempts.find_by(user: student, test_type: :pre) %>
+          <% post = @course.test_attempts.find_by(user: student, test_type: :post) %>
           <tr>
             <td><span class="avatar me-2"><%= student.email.first(2).upcase %></span> <%= student.email %></td>
             <td><%= passed %> / <%= total %></td>
@@ -24,6 +26,8 @@
               <div class="progress" style="height:8px"><div class="progress-bar" style="width:<%= pct %>%"></div></div>
               <span class="small text-muted"><%= pct %>%</span>
             </td>
+            <td><%= pre ? "#{pre.score}/#{pre.total}" : "—" %></td>
+            <td><%= post ? "#{post.score}/#{post.total}" : "—" %></td>
             <td>
               <% if student.certificates.exists?(course: @course) %>
                 <span class="chip badge-ok">Earned</span>
@@ -31,6 +35,9 @@
                 <span class="chip badge-warn">Eligible</span>
               <% else %>
                 <span class="chip badge-err">In progress</span>
+              <% end %>
+              <% if @course.eligible?(student) && !student.certificates.exists?(course: @course) %>
+                <%= button_to "Issue certificate", issue_certificate_course_path(@course, user_id: student.id), method: :post, class: "btn btn-sm btn-primary mt-1" %>
               <% end %>
             </td>
             <td><%= link_to "Review", review_student_course_path(@course, user_id: student.id), class: "btn btn-sm btn-outline-brand" %></td>

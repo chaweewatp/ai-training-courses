@@ -56,9 +56,11 @@ Result shows score only (correct answers not revealed).
 ## Certificate
 
 Eligibility = **quiz pass % ≥ threshold AND post-test % ≥ threshold**
-(whichever exists; a course with only one still works). Auto-issued on the
-certificate page; rendered as printable HTML. Issuing a certificate adds each
-`CourseSkill` exp to the student's `UserSkill`.
+(whichever exists; a course with only one still works). The instructor issues a
+certificate to an eligible student from the course manage page; it then shows in
+the student's certificate menu. The student can also self-issue from the
+certificate page when eligible. Rendered as printable HTML. Issuing a
+certificate adds each `CourseSkill` exp to the student's `UserSkill`.
 
 ## Skills & leveling
 

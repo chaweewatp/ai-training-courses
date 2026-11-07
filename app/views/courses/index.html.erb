@@ -23,7 +23,7 @@
         <div class="card-body d-flex flex-column">
           <p class="text-muted small flex-grow-1"><%= truncate(course.description, length: 120) %></p>
           <div class="d-flex align-items-center justify-content-between">
-            <span class="small text-muted">Instructor: <%= course.instructor.email %></span>
+            <span class="small text-muted">Instructor: <%= course.instructor.display_name %></span>
             <%= link_to "View", course_path(course), class: "btn btn-primary btn-sm" %>
           </div>
         </div>

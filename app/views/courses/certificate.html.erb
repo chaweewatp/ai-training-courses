@@ -1,14 +1,15 @@
 <div class="cert shadow-soft text-center">
-  <div class="brand-dot mx-auto mb-3" style="width:46px;height:46px;font-size:1.2rem">S</div>
+  <div class="d-flex align-items-center justify-content-center gap-2 mb-3">
+    <div class="brand-dot" style="width:46px;height:46px;font-size:1.2rem">S</div>
+    <span class="fw-bold fs-5">SkillUp</span>
+  </div>
   <div class="text-muted small fw-bold text-uppercase">Certificate of Completion</div>
   <h2 class="fw-bold mt-3 mb-1"><%= current_user.display_name %></h2>
   <p class="text-muted">has successfully completed the course</p>
   <h4 class="fw-bold" style="color:var(--brand)"><%= @course.title %></h4>
-  <% passed = @course.quizzes.joins(:answers).where(answers: { user_id: current_user.id, correct: true }).count %>
-  <p class="text-muted small mt-3">Passed <%= passed %> of <%= @course.total_quizzes %> quizzes · threshold <%= @course.certificate_threshold %>%</p>
   <hr class="my-4">
   <div class="d-flex justify-content-between small text-muted">
-    <span><%= @course.instructor.email %> — Instructor</span>
+    <span><%= @course.instructor.display_name %> — Instructor</span>
     <span>Earned <%= @certificate.earned_at.to_date %></span>
   </div>
 </div>

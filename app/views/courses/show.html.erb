@@ -14,11 +14,15 @@
     <div class="sidebar p-2 shadow-soft sticky-top" style="top:80px">
       <div class="px-2 pt-2 pb-1 text-muted small fw-bold text-uppercase"><%= @course.title %></div>
       <% @chapters.each do |chapter| %>
-        <%= link_to course_path(@course, chapter: chapter.id), class: (@chapter == chapter ? "active" : "") do %>
-          <%= chapter.title %>
-          <% if @owner && !chapter.published? %>
-            <span class="chip badge-warn ms-1">Draft</span>
+        <% if @enrolled || @owner %>
+          <%= link_to course_path(@course, chapter: chapter.id), class: (@chapter == chapter ? "active" : "") do %>
+            <%= chapter.title %>
+            <% if @owner && !chapter.published? %>
+              <span class="chip badge-warn ms-1">Draft</span>
+            <% end %>
           <% end %>
+        <% else %>
+          <div class="px-2 py-1 text-muted"><%= chapter.title %></div>
         <% end %>
       <% end %>
       <% if @chapters.empty? %>
@@ -48,7 +52,8 @@
 
   <div class="col-lg-9">
     <div class="card shadow-soft p-4 p-lg-5">
-      <% if @chapter %>
+      <% if @enrolled || @owner %>
+        <% if @chapter %>
         <h3 class="fw-bold"><%= @chapter.title %></h3>
         <div class="mt-3"><%= markdown(@chapter.body) %></div>
 
@@ -101,11 +106,30 @@
             <%= link_to "Manage tests", course_test_questions_path(@course), class: "btn btn-outline-brand btn-sm" %>
           </div>
         <% end %>
-      <% else %>
-        <p class="text-muted">No chapters yet.</p>
-        <% if @owner %>
-          <%= link_to "Add chapter", new_course_chapter_path(@course), class: "btn btn-primary" %>
+        <% else %>
+          <p class="text-muted">No chapters yet.</p>
+          <% if @owner %>
+            <%= link_to "Add chapter", new_course_chapter_path(@course), class: "btn btn-primary" %>
+          <% end %>
         <% end %>
+      <% else %>
+        <h3 class="fw-bold"><%= @course.title %></h3>
+        <% if @course.description.present? %>
+          <p class="mt-3 text-muted"><%= @course.description %></p>
+        <% end %>
+        <h6 class="fw-bold mt-4">Chapters</h6>
+        <% if @chapters.any? %>
+          <ul class="list-unstyled">
+            <% @chapters.each do |chapter| %>
+              <li class="py-2 border-bottom"><%= chapter.title %></li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="text-muted">No published chapters yet.</p>
+        <% end %>
+        <div class="mt-3">
+          <%= button_to "Enroll", enroll_course_path(@course), method: :post, class: "btn btn-primary" %>
+        </div>
       <% end %>
     </div>
   </div>

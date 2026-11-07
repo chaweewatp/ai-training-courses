@@ -20,7 +20,8 @@ gem "stimulus-rails"
 # gem "bcrypt", "~> 3.1.7"
 
 gem "devise"
-gem "redcarpet"
+gem "kramdown"
+gem "kramdown-parser-gfm"
 gem "rouge"
 gem "dotenv-rails"
 

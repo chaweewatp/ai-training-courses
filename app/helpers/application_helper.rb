@@ -1,14 +1,16 @@
 module ApplicationHelper
   def markdown(text)
-    renderer = Redcarpet::Render::HTML.new(
+    doc = Kramdown::Document.new(
+      text.to_s,
+      input: "GFM",
       hard_wrap: true,
-      fenced_code_blocks: true,
-      autolink: true
+      math_engine: nil,
+      syntax_highlighter: nil
     )
-    markdown = Redcarpet::Markdown.new(renderer, fenced_code_blocks: true)
-    html = markdown.render(text.to_s)
-    highlighted = highlight_code_blocks(html)
-    highlighted.html_safe
+    html = doc.to_html
+      .gsub("<table>", %(<div class="table-responsive"><table class="table table-bordered">))
+      .gsub("</table>", "</table></div>")
+    highlight_code_blocks(html).html_safe
   end
 
   private

@@ -12,6 +12,10 @@
       (function(){ var t = localStorage.getItem('theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); document.documentElement.setAttribute('data-bs-theme', t); })();
     </script>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <script>
+      window.MathJax = { tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] } };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
     <%= javascript_importmap_tags %>
   </head>
 
@@ -92,6 +96,11 @@
           }
         });
       })();
+    </script>
+    <script>
+      document.addEventListener("turbo:load", function () {
+        if (window.MathJax && window.MathJax.typesetPromise) window.MathJax.typesetPromise();
+      });
     </script>
   </body>
 </html>

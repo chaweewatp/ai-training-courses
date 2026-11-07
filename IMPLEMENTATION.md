@@ -10,7 +10,8 @@ learning. Certificates auto-issue and award skill experience.
 - Rails 8.1.x, Ruby 3.3.x, PostgreSQL
 - Devise (email login; no `:confirmable`; `:recoverable` used only for the admin
   password-reset token, no email sending)
-- `redcarpet` + `rouge` for Markdown rendering + syntax highlighting
+- `kramdown` (GFM) + `rouge` for Markdown rendering + syntax highlighting;
+  tables supported; `MathJax` (CDN) renders `$…$` / `$$…$$` math
 - Bootstrap 5.3 (CDN) with native light/dark via `data-bs-theme`, teal/emerald accent
 - Deploy: GitHub → Render (web service + `DATABASE_URL`/`SECRET_KEY_BASE` env vars)
 
